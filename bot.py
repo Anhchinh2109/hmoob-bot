@@ -4,7 +4,6 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-print("TOKEN:", TELEGRAM_TOKEN)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
