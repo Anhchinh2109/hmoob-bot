@@ -9,31 +9,44 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_message = update.message.text
 
-    headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-        "Content-Type": "application/json"
-    }
+        try:
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
 
-    data = {
-        "model": "gpt-4o-mini",
-        "messages": [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": user_message}
-        ]
-    }
+        data = {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": user_message}
+            ]
+        }
 
-    response = requests.post(
-        "https://api.openai.com/v1/chat/completions",
-        headers=headers,
-        json=data
-    )
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=headers,
+            json=data
+        )
 
-    if response.status_code == 200:
-        reply = response.json()["choices"][0]["message"]["content"]
-    else:
-        reply = "Có lỗi xảy ra khi gọi OpenAI."
+        print("STATUS:", response.status_code)
+        print("RAW RESPONSE:", response.text)
+            if response.status_code != 200:
+    await update.message.reply_text(response.text)
+    return
 
-    await update.message.reply_text(reply)
+        result = response.json()
+
+        if "choices" in result:
+            reply = result["choices"][0]["message"]["content"]
+        else:
+            reply = str(result)
+
+        await update.message.reply_text(reply)
+
+    except Exception as e:
+        print("OPENAI ERROR:", e)
+        await update.message.reply_text(f"Lỗi thật: {e}")
 
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
